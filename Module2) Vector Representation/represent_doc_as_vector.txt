@@ -1,0 +1,116 @@
+### Represent a Document as a Vector ###
+
+'''
+(ML algorithms dont accept text ot tokens as inputs
+we need additional ways to represent numbers)
+'''
+
+# Text Vectorization #
+# In Linear Algebra: A vector is a single column, or row
+# Text Vectorization: Illustrating words in a numerical way (1's and 0's)
+
+
+# Bag of Words #
+'''
+When text or Doc is represented as a "Bag of Words",
+we can use the term frequency to create Vector for text.
+Next, count each word or term in text and construct vector
+'''
+
+# Doc-Term Matrix (DTM) #
+'''
+Represent numeric characteristics of Docs by using matrix to decribe
+frequency of terms that occur in collection of docs
+'''
+# Rows correspond to Documents in collection
+'''
+Term Frequency-Inverse Document Frequency (tf-idf):
+calculated by counting how many times the term occurs in doc (term frequency),
+divided by the number of docs in which that word occurs
+'''
+
+## Follow-Along ##
+'''
+Create a sample corpus with some randomly generated sentences,
+then look at vectorization using binary encoding (one-hot) and tf-idf
+'''
+
+# Create the corpus with random sentences
+corpus = ["Karma, karma, karma, karma, karma chameleon.",
+          "The paintbrush was angry at the color the chameleon chose to use.",
+          "She stomped on her fruit loops and thus became a cereal killer.",
+          "He hated that he loved what she hated about cereal and her chameleon."
+          ]
+
+# Frequency Count #
+
+# Import the feature-extraction module and vectorizer
+from sklearn.feature_extraction.text import CountVectorizer
+
+# Instatiate object and count words
+vectorizer = CountVectorizer()
+vectors = vectorizer.fit_transform(corpus)
+
+# Convert to dense vectors (No Zeros)
+print(vectors.todense())
+
+'''
+outcome: (each vector is the length of the words in corpus with
+          an integer count for each word appreaing in doc.
+          For the next sentence(doc) we only have 2 words leaving
+          2 non-zero integers. The word karma appears 5 times)
+
+[[0 0 0 0 0 0 1 0 0 0 0 0 0 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 0 1 1 0 0 1 1 1 0 0 0 0 0 0 0 0 0 1 0 0 0 3 0 1 1 1 0]
+ [0 1 0 0 1 1 0 0 0 1 0 0 1 0 1 1 0 1 0 1 1 0 0 1 0 0 0 0]
+ [1 1 0 0 0 1 1 0 0 0 2 2 1 0 0 0 1 0 0 1 0 1 0 0 0 0 0 1]]
+'''
+# One-Hot Encoding #
+# Binary encoding text
+'''
+Count words and put them in Binarizer:
+by default, will convert all values above a 0 an 1 and all other
+values to zero
+'''
+# One_hot encoding of word count
+# Import Binary Encoder
+from sklearn.preprocessing import Binarizer
+
+# Initialize the vector and get word count
+freq = CountVectorizer()
+corpus_freq = freq.fit_transform(corpus)
+
+# Initialize the binarizer and create the binary encoder vector
+onehot = Binarizer()
+corpus_onehot = onehot.fit_transform(corpus_freq.toarray())
+
+# Display the one-hot encoder vector
+print(corpus_onehot)
+
+'''
+outcome:
+array([[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0],
+       [0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+        1, 0, 1, 1, 1, 0],
+       [0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0,
+        0, 1, 0, 0, 0, 0],
+       [1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1,
+        0, 0, 0, 0, 0, 1]])
+'''
+
+# Term Frequency-Inverse Document Frequency
+# (remove stop-words before calculating tf-idf)
+
+# Import library modules
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# Instatiate the vector object
+tfidf = TfidfVectorizer(stop_words='english', max_features=5000)
+
+# Create a vocab and get word count per doc
+dtm = pd.DataFrame(dtm.todense(), columns=tfidf.get_feature_names())
+
+# View feature matrix as DF
+dtm.head()

@@ -1,0 +1,123 @@
+# Stem or Lemmatize Text
+
+## Stemming ##
+# (remove the ending)
+
+# Porter Stemmer: Using an explicit lst of suffixes and a list
+# of criteria showing which suffixes to remove
+# Example:
+# ("Caresses --> Caress")
+# ("Ponies --> Poni")
+# ("cats --> cat")
+
+# *Sample text:* Such and analysis can reveal features that are not easily visible from the variations in the individual genes and can lead to a picture of expression that is more biologically transparent and accessible to interpretation
+# *Porter stemmer:* such an analysi can reveal featur that ar not easili visibl from the variat in the individu gene and can lead to a pictur of express that is more biolog transpar and access to interpret
+
+## Lemmatization ##
+# transform a word to its base form called a lemma
+# 1) plural nouns with uncommon spelling get changed to singular tense
+# 2) verbs transform to transitive verbs
+
+## Follow-Along ##
+
+# Import the library
+import spacy
+
+# Create example sentance
+sent = "The rabbit-hole went straight on like a tunnel for some way, and then dipped suddenly down, so suddenly that Alice had not a moment to think about stopping herself before she found herself falling down a very deep well."
+
+
+# Load the lang library
+nlp = spacy.load("en_core_web_lg")
+doc = nlp(sent)
+
+'''
+# Lemma attributes
+for token in doc:
+    print(token.text, " --> ", token.lemma_)
+
+outome:
+The  -->  the
+rabbit  -->  rabbit
+-  -->  -
+hole  -->  hole
+went  -->  go
+straight  -->  straight
+on  -->  on
+like  -->  like
+a  -->  a
+tunnel  -->  tunnel
+for  -->  for
+some  -->  some
+way  -->  way
+,  -->  ,
+and  -->  and
+then  -->  then
+dipped  -->  dip
+suddenly  -->  suddenly
+down  -->  down
+,  -->  ,
+so  -->  so
+suddenly  -->  suddenly
+that  -->  that
+Alice  -->  Alice
+had  -->  have
+not  -->  not
+a  -->  a
+moment  -->  moment
+to  -->  to
+think  -->  think
+about  -->  about
+stopping  -->  stop
+herself  -->  -PRON-
+before  -->  before
+she  -->  -PRON-
+found  -->  find
+herself  -->  -PRON-
+falling  -->  fall
+down  -->  down
+a  -->  a
+very  -->  very
+deep  -->  deep
+well  -->  well
+.  -->  . 
+'''
+
+# Make process more efficient w/ various text normalizing functions
+
+# Tokenizing and lemmatization in one function
+def get_lemmas(text):
+    # Inititate List
+    lemmas = []
+
+    # Convert the input text into spaCy doc
+    doc = nlp(text)
+
+    # Remove stop-words, punctuations, and personal pronouns (PRON)
+    for token in doc:
+        if ((token.is_stop == False) & (token.is_punct == False)) & (token.pos_ != 'PRON'):
+            lemmas.append(token.lemma_)
+
+        # return lemmatized tokens
+        return lemmas
+
+# Example text
+geology =  ["Geology describes the structure of the Earth on and beneath its surface, and the processes that have shaped that structure.",
+        "It also provides tools to determine the relative and absolute ages of rocks found in a given location, and also to describe the histories of those rocks.",
+        "By combining these tools, geologists are able to chronicle the geological history of the Earth as a whole, and also to demonstrate the age of the Earth.",
+        "Geology provides the primary evidence for plate tectonics, the evolutionary history of life, and the Earth's past climates."]
+
+# Find the lemmas for each sentence
+geology_lemma = [get_lemmas(sentence) for sentence in geology]
+
+print(geology_lemma)
+
+''' outcome:
+    [['geology', 'describe', 'structure', 'Earth', 'beneath', 'surface', 'process', 
+    'shape', 'structure'], ['provide', 'tool', 'determine', 'relative', 'absolute', 
+    'age', 'rock', 'find', 'give', 'location', 'describe', 'history', 'rock'], 
+    ['combine', 'tool', 'geologist', 'able', 'chronicle', 'geological', 'history', 
+    'Earth', 'demonstrate', 'age', 'Earth'], ['geology', 'provide', 'primary', 'evidence', 
+    'plate', 'tectonic', 'evolutionary', 'history', 'life', 'Earth', 'past', 'climate']]
+'''
+

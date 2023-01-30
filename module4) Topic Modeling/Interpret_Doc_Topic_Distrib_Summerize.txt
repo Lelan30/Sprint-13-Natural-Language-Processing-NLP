@@ -1,0 +1,64 @@
+### interpret Document Topic Distributions and Summerize Findings ###
+
+## Follow-Along ##
+
+# Suppress annoying warning
+import warnings
+
+import gensim.models.ldamodel
+
+warnings.filterwarnings("ignore",
+ category=DeprecationWarning)
+
+# Import Libraries:
+import pyLDAvis.gensim
+from gensim.utils import simple_preprocess
+from gensim.parsing.preprocessing import STOPWORDS
+from gensim import corpora
+from gensim.models.ldamulticore import LdaMulticore
+
+# Use visualization in notebook
+pyLDAvis.enable_notebook()
+
+# Repeat topic model from previous block
+
+# Add additional stop words
+#STOPWORDS = set(STOPWORDS).union(set(['said','mr','mrs']))
+
+# Function for tokenizing the
+def tokenize(text):
+    return [token for token in simple_preprocess(text) if token not in STOPWORDS]
+
+# Read in the text
+with open('wonderland.txt', 'r') as file:
+    text_str = file.load()
+
+# Split
+text = text_str.split('\n')
+
+# Tokenize
+text_tokens = [tokenize(chunk) for chunk in text]
+
+# Import corpora
+
+# Create the term dictionary for corpus
+dictionary = corpora.Dictionary(text_tokens)
+
+# Convert list of docs (corpus) into DTM
+doc_term_matrix = [dictionary.doc2bow(doc) for doc in text_tokens]
+
+# Import LDAMulticore
+
+# Create the object for LDA model
+lda = gensim.models.ldamodel.LdaModel
+
+# Train LDA model on DTM (5 topics)
+ldamodel = lda(doc_term_matrix, num_topics=5, id2word=dictionary, passes=50)
+
+# Interactive visualization for topic modeling
+pyLDAvis.gensim.prepare(ldamodel, doc_term_matrix, dictionary)
+
+'''
+outcome:
+This tool allows us to compare word distribution within each topic.
+'''

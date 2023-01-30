@@ -1,0 +1,177 @@
+# Natural Languages are semi structured
+# Format text make sense of program
+
+# Tokenize: seperate the text into tokens; a unit of text that 
+# has some meaning (Break a long sentance down into sentence tokens
+# or word tokens)
+# Tokenization
+
+# "Good Tokens" Attributes: Words in the same case (lower prefered)
+# with only alphanumeric characters
+
+# Store tokens in interable form incliding:
+# string, list, or pandas series
+
+''' Example: 
+    
+    # we can use python list() to tokenize this string
+    string = '29texqevzr3gwvmrpjvde637h4gwd6'
+
+    tokens = list(string)
+
+    # look at the first 10
+    tokens[:10]
+
+    # output:
+    ['2', '9', 't', 'e', 'x', 'q', 'e', 'v', 'z', 'r']
+
+    # token are "Good"; same case, no non-alphanumerics
+    # and are iterable with list()
+'''
+
+# Tokenize by Words
+
+''' Example:
+
+    # random sentance
+    mysentence = 'Everything in my room in blue and black.'
+
+    # split sentence
+    mysentence.split(" ")
+
+    # output:
+    ['Everything',
+     'in',
+     'my',
+     'room',
+     'is',
+     'blue',
+     'and',
+     'black.']
+'''
+
+# Token Analysis
+# After you have your tokens next step is analysis
+
+# Counting Token Frequency
+# How often does each character in a suquence or sentence occur
+# Plot with seaborn
+''' Example:
+
+    import seaborn as sns
+
+    ax = sns.countplot(tokens)
+    ax.set_title('Count plot of random_seq characters');
+'''
+
+# Case Normalization
+# A common cleaning task with tokens
+# Standardize or Normalize the case (convert all words to lowercase)
+# Normalizing reduced chance of duplicates
+# .lower() or .upper()
+''' Example:
+
+    import pandas as pd
+    grocery = pd.read_csv('grocery_list.csv')
+    items_list = grocery['items'].tolist()
+    items_list
+
+    # output:
+    ['apple',
+    'Apple',
+    'banana',
+    'Banana',
+    'BANANA',
+    'APPLE',
+    'tomato sauce',
+    'Tomato SAUCE',
+    'TOMATO sauce',
+    'toothpicks',
+    'Toothpicks',
+    'TOOTHPICKS',
+    'carrots',
+    'Carrots',
+    'CARROTS',
+    'red grapes',
+    'Red grapes',
+    'RED grapes',
+    'RED GRAPES',
+    'paper towel',
+    'Paper Towel',
+    'PAPER TOWEL']
+
+    # Now look at ValueCounts()
+    # (count the frequency of each item in list)
+    
+    grocery['items'].value_counts()
+
+    # outcome:
+    # many repreated items due to stores having different ways of
+    # labeling thier items
+
+    # Normalize case for each item
+    # (create .lower())
+    grocery['items'] = grocery['items'].apply(lambda x: x.lower()
+
+    # Re-do the value counts
+    grocery['items'].value_counts()
+
+    # outcome:
+    red grapes      4
+    banana          3
+    tomato sauce    3
+    apple           3
+    carrots         3
+    toothpicks      3
+    paper towel     3
+    Name: items, dtype: int64
+'''
+
+# Alphanumeric Characters (Letters & Numbers)
+# import re (regular expression)
+# regex pattern needed: [^a-zA-Z 0-9]
+# (keeps lower and upper case letters, numbers, and single spaces)
+# filter out the non_alphanumerics with re.sub() function
+''' Example:
+
+    # Random string of characters
+    string = 'D]ehjZe_*-e!?fdfW)_/zQ2#8*LKH#'
+
+    # Import regular expression package
+    import re
+
+    # Filter and replace with nothing
+    re.sub('[^a-zA-Z 0-9]', '', string)
+
+    # outcome:
+    'DehjZeefdfWzQ28LKH'
+'''
+
+## Follow-Along ##
+
+# Process Raw Text with Spacey
+# Instead of storing the components repeatedly in various data structures
+# Spacey indexes components, stores look-up information
+# (Spacey is fast with large-scale datasets)
+
+# Use Spacey to process tokenized sample text #
+# Download Spacey Module
+
+import spacy
+from spacy.tokenizer import Tokenizer
+
+# Load pre-trained stats model for English
+
+import en_core_web_lg
+nlp = n_core_web_lg.load()
+
+# Tokenizer
+
+tokenizer = Tokenizer(nlp.vocab)
+
+# Sample
+
+sample = "They watched the 42 dancing piglets with panda bear tummies in the swimming pool."
+
+# Tokenize and print out list of tokens
+[token.text for token in tokenizer(sample)]

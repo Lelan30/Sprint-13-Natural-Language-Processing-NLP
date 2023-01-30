@@ -1,0 +1,104 @@
+# Natural Lang Processing
+# DS Unit 4 Sprint 1 Assignment
+
+import pandas as pd
+import re
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Get data
+url = "https://raw.githubusercontent.com/LambdaSchool/DS-Unit-4-Sprint-1-NLP/main/module1-text-data/data/yelp_coffeeshop_review_data.csv"
+
+df = pd.read_csv(url)
+# print(df.head())
+# print(df['full_review_text'][0])
+
+# Save dates for later
+# grab data from beginning of review text
+
+
+def get_date(text):
+    return text.split(' ')[1]
+
+
+df['date'] = df['full_review_text'].apply(get_date)
+# print(df)
+
+# Another approach (re: regular expression)
+import re
+
+def find_first_date(text):
+    # return re.findall('\d+\/\d+\/\d+', text)[0]
+    return re.findall('\d+\/\d+\/\d+', text)[0]
+
+example_text = '''
+    11/25/2016 1 check-in Love love loved the atmosphere! Every corner of the
+    coffee shop had its own style, and there were swings!!! I ordered the matcha latte, 
+    and it was muy fantastico! Ordering and getting my drink were pretty streamlined. 
+    I ordered on an iPad, which included all beverage selections that ranged from coffee to wine, 
+    desired level of sweetness, and a checkout system. I got my latte within minutes!  
+    I was hoping for a typical heart or feather on my latte, but found myself listing 
+    out all the possibilities of what the art may be. Any ideas? 
+'''
+
+find_first_date(example_text)
+
+# Explore Data
+'''
+print(df['date'].iloc[0])
+print(type(df['date'].iloc[0]))
+
+# Turn date and column strings into datetime obj
+df['date'] = pd.to_datetime(df['date'], infer_datetime_format=True)
+
+print(type(df['date'][0]))
+print(df['date'].iloc[0])
+
+print(dir(df['date'].iloc[0]))
+
+print(df['date'].iloc[0].day_name())
+print(df.head())
+
+print(df['star_rating'].unique())
+print(df['star_rating'].value_counts())
+'''
+
+# histogram of review dates to see when most reviews were left
+# a bit of EDA
+df['date'].hist(bins=20);
+
+# Clean and Review text with re
+# import re
+
+
+def clean_data(text):
+    # order of operations - apply expression from top to bottom
+    date_regex = r'\d+/\d+/\d+'
+    # any alpha-numeric chars
+    punct_regex = r'[^0-9a-zA-Z\s]'
+
+    special_chars_regex = r'[\$\%\&\@+]'
+    numerical_regex = r'^[-+]?[0-9]+$'
+
+    # Replace any string matching above regex patterns with blank
+    # (remove them from text)
+    text = re.sub(date_regex, "", text)
+    text = re.sub(punct_regex, "", text)
+    text = re.sub(special_chars_regex, "", text)
+    text = re.sub(numerical_regex, "", text)
+
+    # match one or more whitespace
+    whitespace_regex = r'\s+([0-9]+'
+    text = re.sub(whitespace_regex, "", text)
+
+    # apply case normalization
+    text =
+
+    return text
+
+
+
+
+
+
+

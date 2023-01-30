@@ -1,0 +1,118 @@
+### Implement a Topic Model Using the Gensim Library ###
+
+## Topic Modeling Steps ##
+'''
+1) Prepare Text: Load file, split doc, tokenize/lemmatize, remove stop words
+2) Create the term dictionary for the corpus
+3) Create a doc term matrix (DTM)
+4) Set up LDA model, number of topics
+5)Run and train model
+6)Topics
+'''
+
+## Follow-Along ##
+# 'Alice and Wonderland' from Gutenberg Project
+# Imports
+import gensim
+from gensim.utils import simple_preprocess
+from gensim.parsing.preprocessing import STOPWORDS
+from gensim import corpora
+from gensim.models.ldamulticore import LdaMulticore
+import re
+
+# Add additional stop words
+#STOPWORDS = set(STOPWORDS).union(set(['said', 'mr', 'mrs']))
+
+# Function for tokenizing the
+def tokenize(text):
+    return [token for token in simple_preprocess(text) if token not in STOPWORDS]
+
+# Read in the text (download to run locally)
+with open('wonderland.txt', 'r') as file:
+    text_str = file.read()
+
+# Split the string
+text = text_str.split('\n')
+
+# Tokenize each chunk of text
+text_tokens = [tokenize(chunk) for chunk in text]
+
+# Look at first 10 tokens
+print(text_tokens[0][0:10])
+
+'''
+output:
+['alice',
+ 'beginning',
+ 'tired',
+ 'sitting',
+ 'sister',
+ 'bank',
+ 'having',
+ 'twice',
+ 'peeped',
+ 'book']
+'''
+
+# from gensim import corpora
+# Create term dict for corpus (every unique item given index)
+dictionary = corpora.Dictionary(text_tokens)
+
+# Convert list of docs (corpus) into DTM
+doc_term_matrix = [dictionary.doc2bow(doc) for doc in text_tokens]
+
+# print
+print(doc_term_matrix[0][0:25])
+
+'''
+outcome:
+[(0, 1), (1, 4), (2, 1), (3, 1), (4, 2), (5, 1), (6, 1), (7, 1), (8, 1), 
+(9, 2), (10, 1), (11, 1), (12, 1), (13, 1), (14, 2), (15, 1), (16, 1), 
+(17, 1), (18, 1), (19, 1), (20, 1), (21, 1), (22, 1), (23, 1), (24, 1)]
+'''
+
+# Import LDaMulticore
+
+# Create object for LDA model
+lda = gensim.models.ldamodel.LdaModel
+
+# Train LDA on DTM
+# topics = 5
+ldamodel = lda(doc_term_matrix, num_topics=5, id2word= dictionary, passes=50)
+
+# Print
+print(ldamodel.print_topics(num_topics=3, num_words=5))
+
+'''
+outcome:
+[(1, '0.029*"turtle" + 0.024*"said" + 0.024*"mock" + 0.020*"gryphon" + 0.015*"alice"'), 
+(0, '0.027*"rabbit" + 0.020*"alice" + 0.014*"white" + 0.014*"time" + 0.014*"dear"'), 
+(2, '0.025*"little" + 0.020*"alice" + 0.009*"ran" + 0.009*"looking" + 0.009*"head"')]
+'''
+
+# Put in more readable format
+
+# Import re
+words = [re.findall(r'"([^"]*)"', t[1]) for t in ldamodel.print_topics()]
+topics = [' '.join(t[0:5]) for t in words]
+for id, t in enumerate(topics):
+    print(f"------ Topic {id} ------")
+    print(t, end="\n\n")
+
+'''
+outcome:
+------ Topic 0 ------
+rabbit alice white time dear
+
+------ Topic 1 ------
+turtle said mock gryphon alice
+
+------ Topic 2 ------
+little alice ran looking head
+
+------ Topic 3 ------
+came hearts said alice procession
+
+------ Topic 4 ------
+king alice executioner queen look
+'''

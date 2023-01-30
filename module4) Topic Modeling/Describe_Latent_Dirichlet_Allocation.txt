@@ -1,0 +1,26 @@
+### Describe Latent Dirichlet Allocation Process ###
+
+## Topics ##
+# How do we determine which "topics" are in a doc
+# Math & Statistical techniques like (LDA)
+
+## Latent Dirichlet allocation ##
+'''
+basis: assumes a doc is a mixture of topics and all words in
+doc (after removal of stop words, stemming, lemmatization)
+belong to a topic
+(Each doc is a mixture of topics and each topic is a mixture
+is a mixture of words)
+'''
+# LDA is an unsupervised learning (clustering)
+# parameter to specify when fitting LDA is number of topics
+
+## Follow-Along ##
+'''
+Hypothetical topic we want to find:
+1) "Many people have believed that the summer season is hot because the Earth is closer to the Sun."
+2) "Would the state of liquid water change to a solid or gas on the surface of the Moon?"
+3) "After discussing their problems, the underlying issue began to surface."
+4) "The recipe did state specific cooking directions but didn't indicate how to season the food."
+5) "The state needs to issue the document."
+'''

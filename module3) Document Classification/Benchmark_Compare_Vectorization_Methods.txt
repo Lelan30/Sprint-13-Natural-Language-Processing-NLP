@@ -1,0 +1,50 @@
+### Benchmark and Compare Various Vectorization Methods ###
+
+## Follow-Along ##
+
+# Import files here:
+import spacy
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+
+nlp = spacy.load('en_core_web_lg')
+
+# Read in local files from UCI website
+df_yelp = pd.read_csv('yelp_labelled.txt')
+df_yelp.head()
+
+# Create the feature and target
+sentences = df_yelp['sentence']
+y = df_yelp['label']
+
+# Train_test split
+sentence_train, sentence_test, y_train, y_test = train_test_split(
+    sentences, y, test_size=0.25, random_state=42)
+
+# Function to return the vector for each sentence
+def get_word_vector(docs):
+    return [nlp(doc).vector for doc in docs]
+
+# Get vectors for each sentence (mean)
+X_train = get_word_vector(sentence_train)
+X_test = get_word_vector(sentence_test)
+
+# Import LogiscticRegression
+# Instantiate
+classifier = LogisticRegression()
+
+# Fit model
+classifier.fit(X_train, y_train)
+score = classifier.score(X_test, y_test)
+
+# Print Accuracy score
+print("Accuracy inclusing word embeddings: ", score)
+
+'''
+outcome: (A big improvement in accuracy would suggest:
+          for this type of text data (short to medium sentences)
+          word embedding and word vectors capture more meaning)
+          
+Accuracy including word embeddings:  0.856
+'''

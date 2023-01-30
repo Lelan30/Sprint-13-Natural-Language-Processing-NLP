@@ -1,0 +1,77 @@
+### Latent Semantic Indexing (LSA) ###
+# (Latent Semantic Indexing)
+
+## Singular Value Decomposition (SVD) ##
+'''
+Find the critical parts of the matrix,
+reduce number of rows(words) while preserving
+information for later comparisions like cosine sims
+'''
+
+## Follow-Along ##
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import TruncatedSVD
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import GridSearchCV
+
+# Read the locally saved file
+df_yelp = pd.read_csv('yelp_labelled.txt', names=['sentence', 'label'], sep='\t')
+# print(df_yelp.head())
+
+# Create features and target
+sentences = df_yelp['sentence']
+y = df_yelp['label']
+
+# Instantiate the tf-idf
+vectorizer = TfidfVectorizer(stop_words='english', ngram_range = (2,2))
+
+# Instantiate the classifier (defaults)
+classifier = LogisticRegression(solver='lbfgs')
+
+# Instatiate the LSA (SVD) algorithm
+svd = TruncatedSVD()
+
+# Add SVD to pipeline
+# Seperate classifier part
+# Combine vectorizer and SVD the 'lsa' piece
+
+# Import Pipeline
+# Create pipeline
+
+# LSA part
+lsa = Pipeline([('vect', vectorizer), ('svd', svd)])
+
+# Combine into pipeline
+pipe = Pipeline([('lsa', lsa), ('clf', classifier)])
+
+# Define the parameter space for grid search
+parameters = {
+    'lsa__svd__n_components': (100, 250),
+    'lsa__vect__max_df': (0.9, 1.0),  # max doc frequency
+}
+
+# Implement grid search with cross-val
+grid_search = GridSearchCV(pipe, parameters, cv=5, n_jobs=-1, verbose=1)
+grid_search.fit(sentences, y)
+
+# Display
+print(grid_search.best_score_)
+
+'''
+outcome: (In last objective score was 0.61. We are about the same here.
+          Our analysis didn't seem to benefit much)
+Fitting 5 folds for each of 4 candidates, totalling 20 fits
+
+
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 12 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  18 out of  20 | elapsed:    3.4s remaining:    0.4s
+[Parallel(n_jobs=-1)]: Done  20 out of  20 | elapsed:    3.4s finished
+
+
+
+
+
+0.597
+'''

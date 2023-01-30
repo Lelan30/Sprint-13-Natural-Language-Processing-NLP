@@ -1,0 +1,129 @@
+### Apply Word Embedding Models to Create Document Vectors ###
+
+## Word Embedding ##
+# A word is represented as a continuous vector in a lower dimension
+# PROCESSING A LARGE CORPUS OF TEXT TO LEARN MEANING OF WORDS
+# Words or phrases are mapped to vector in real space
+# Apply Neural Network Techniques
+# Words in same context will have similar meaning, similar vectors
+
+## Word2vec ##
+# Uses 2 algorithms to find vectors:
+#- Skip-Gram -#
+# uses n-grams to contain gaps where token is skipped
+# predicted based on input
+# works well with smaller corpora and rare words
+#- CBOW -#
+# (Continuous-Bag-Of-Words)
+# predicts based on surrounding words
+# faster to train, higher accuracy for frequent words
+
+
+## Follow-Along ##
+# Use spaCy (contains pre-trained word vectors)
+# spaCy vectors obtained by GloVe algorithm from Common Crawl corpus
+
+import spacy
+nlp = spacy.load('en_core_web_lg')
+
+# Set the doc (2 word doc in this case)
+doc = nlp('drama llama')
+
+# Get vectors (average of 2 words doc)
+llama_vector = doc.vector
+
+# Dimensions (length of vector)
+print(llama_vector.shape)
+
+# Display part of vector
+print(llama_vector[:10])
+
+'''
+outcome: (The vectors diplays are the average of the word vectors
+          "drama" and "llama")
+(300,)
+[-0.04911    -0.23685     0.10623751 -0.19662951 -0.403395    0.238247
+0.1852     -0.28211    -0.31013     1.0560249 ]
+'''
+
+# Find similarity score for example words
+# Compare "llama" and "horse"
+print("The similarity score for llama-llama is: ", nlp("llama").similarity(nlp("llama")))
+print("The similarity score for llama-horse is: ", nlp("llama").similarity(nlp("horse")))
+print("The similarity score for llama-car is: ", nlp("llama").similarity(nlp("car")))
+
+'''
+outcome: (The similarity score makes sense: a llama is 
+          much more similar to a horse than a car, a 
+          word is ecatly similar to itself, within 
+          floating point precision errors)
+The similarity score for llama-llama is:  1.0
+The similarity score for llama-horse is:  0.37856930047799736
+The similarity score for llama-car is:  0.08994986314497783
+'''
+
+# Reduce from 300 dimensionsional vector
+# (Principal Component Analysis (PCA) to 
+# project 2 most essential components into 
+# 2 dimensinal space)
+
+# Import the PCA module from sklearn
+from sklearn.decomposition import PCA
+
+# Define function to find the vector for a word
+def get_word_vector(words):
+    # converts a list of words into thier word vectors
+    return [nlp(word).vector for word in words]
+
+# Example word list to find vectors for
+words = ['python', 'javascript', 'code', 'data', 'linux',
+        'llama', 'alpaca', 'cat', 'snake',
+        'cook', 'bake', 'cookie', 'clean', 'car']
+
+# Inistialize the PCA model
+pca = PCA(n_components=2)
+
+# Fit the PCA project down to 2 dimensions
+pca.fit(get_word_vector(words))
+
+# Apply the tranformation from PCA model
+word_vecs_2d = pca.transform(get_word_vector(words))
+
+print(word_vecs_2d)
+
+'''
+outcome:
+array([[ 2.87538871,  2.1924341 ],
+       [ 3.89682021, -0.73923489],
+       [ 3.69059896, -1.41344964],
+       [ 2.95501969, -1.67204314],
+       [ 3.21524274, -0.10002494],
+       [-1.79493447,  4.34816682],
+       [-2.3407361 ,  4.28495142],
+       [-1.45716462,  1.55856908],
+       [-0.84419009,  2.45805994],
+       [-3.56703596, -2.77326173],
+       [-3.87441702, -3.66247474],
+       [-1.3833254 , -2.81328086],
+       [-0.81738513, -1.28377165],
+       [-0.55388151, -0.38463977]])
+'''
+
+# Import for plotting
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(10,8))
+plt.scatter(word_vecs_2d[:,0], word_vecs_2d[:,1])
+
+# Display the text of words at each point
+for word, coord in zip(words, word_vecs_2d):
+    x, y = coord
+    plt.text(x+0.05, y, word, size=15)
+
+    # show
+    plt.show()
+
+    '''
+    outcome:
+    <Figure size 1000x800 with 1 Axes>
+    '''

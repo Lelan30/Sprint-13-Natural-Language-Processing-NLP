@@ -1,0 +1,176 @@
+# Remove Stop Words from List of Tokens
+# Stop Words: Certain words that occur a lot more fequently than others
+
+# English Stop Words are classified as the following parts of speech:
+
+# Parts of Speech   / Examples
+# articles            a, an, the
+# adverbs             very, really, almost
+# pronouns            she, her, they, them
+# conjunctions        and, or, but
+
+## Follow-Along ##
+
+# Using spaCy to remove Stop Words
+# (NLP libraries come with list of pre-defined stop words)
+
+import spacy
+
+# Load the pre-trained stats model (English)
+import en_core_web_lg
+nlp = en_core_web_lg.load()
+
+# spaCy's default stop words
+stop_list = list(nlp.Defaults.stop_words)
+print("The number of stop words: ", len(stop_list))
+
+print("The first 10 stop words are: ", stop_list[:10])
+
+# outcome:
+# The number of stop words:  326
+# The first 10 stop words are:  ['what', 'everything', 'few', "d", 'beside', 'beyond', 'nobody', 'even', 'latter', 'where']
+
+# There are over 300 Stop Words in the default list from spaCy
+# Next part of process is removing them
+# Gutenberg Library: text practicing NLP task
+
+# After opening and reading raw text in str
+# Use spaCy to tokenize text , then remove stop words
+
+# Open and save raw files
+with open('wonderland.txt', encoding='utf-8', errors='ignore') as f:
+    wonder_raw = f.read()
+
+# Parse raw text
+doc = nlp(wonder_raw)
+print('The type of output is: ', type(doc))
+print(doc[:100])
+
+# output:
+# The type of output is:  <class 'spacy.tokens.doc.Doc'>
+# Alice was beginning to get very tired of sitting by her sister on the bank,
+# and of having nothing to do: once or twice she had peeped into the book her
+# sister was reading, but it had no pictures or conversations in it, “and what
+# is the use of a book,” thought Alice “without pictures or conversations?”
+# So she was considering in her own mind (as well as she could, for the hot
+# day made her feel very sleepy and stupid), whether the pleasure
+
+# Remove the stop words and punctuations
+# Initialize list and hold tokens
+tokens_nostop = []
+
+# Loop over each token in documents(doc)
+for token in doc:
+    if (token.is_stop == False) & (token.is_punct == False):
+        tokens_nostop.append(token.text.lower())
+
+# Print the first 50 tokens
+print(tokens_nostop[:50])
+
+# outcome: (now the tokens dont include stop words or punctuations)
+# ['\ufeff', '\n', 'alice', 'beginning', 'tired', 'sitting', 'sister', 'bank',
+# 'having', 'twice', 'peeped', 'book', 'sister', 'reading', 'pictures', 'conversations',
+# 'use', 'book', 'thought', 'alice', 'pictures', 'conversations', 'considering', 'mind',
+# 'hot', 'day', 'feel', 'sleepy', 'stupid', 'pleasure', 'making', 'daisy', 'chain', 'worth',
+# 'trouble', 'getting', 'picking', 'daisies', 'suddenly', 'white', 'rabbit', 'pink', 'eyes',
+# 'ran', 'close', 'remarkable', 'alice', 'think', 'way', 'hear']
+
+# Use Counter method count number occurences in list of tokens
+# and store in dict. Then, convert dict to dataframe (pandas)
+from collections import Counter
+import pandas as pd
+
+# Sum up word counts and store in a dict
+tokens_dict = Counter(tokens_nostop)
+
+# Convert to a dataframe
+tokens_wc = pd.DataFrame(list(tokens_dict.items()), columns = ['word', 'count'])
+
+# Rank the words by how frequently they occur
+tokens_wc['rank'] = tokens_wc['count'].rank(method='first', ascending=False)
+
+# Count all of the words in the document and calculate percentage
+total = tokens_wc['count'].sum()
+tokens_wc['pct_total'] = tokens_wc['count'].apply(lambda x: (x / total)*100)
+
+# Take a look at the Dataframe with new results
+tokens_wc.head(10)
+
+# Create a line plot
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Create a new DataFrame of the top 25 ranked words
+tokens_wc_top25 = tokens_wc[tokens_wc['rank'] <= 25]
+
+# Line plot of rank vs pct total
+sns.lineplot(x='rank', y='pct_total', data= tokens_wc_top25);
+
+plt.clf()
+
+# outcome:
+# the five most common words make up large pct of doc
+# by eyeballing graghp shown; about 15% of doc is composed of 5 words
+
+# Squarify: module returns a treemap of input values
+# the size of the square or rectangle is mapped to its value
+
+# To install: pip install squarify
+import squarify
+
+squarify.plot(sizes=tokens_wc_top25['pct_total'], label=tokens_wc_top25['word'], alpha=.8)
+plt.axis('off')
+
+plt.show()
+
+plt.clf()
+
+# outcome:
+# heatmaps shows there are still a few non-helpful words in plot
+
+# Customize stop words by adding additional words in spaCy
+# Add additional stop words to default list
+STOP_WORDS = nlp.Defaults.stop_words.union(['alic', 'rabbit'])
+
+# Initialize a list to hold tokens
+tokens_nostop_add = []
+
+# Loop over each token in the document(doc)
+for token in doc:
+    if (token.text.lower() not in STOP_WORDS) & (token.is_punct == False):
+        tokens_nostop_add.append(token.text.lower())
+
+# Sum up the word counts and store in a dict # DataFrame
+tokens_dict_add = Counter(tokens_nostop_add)
+tokens_wc_add = pd.DataFrame(list(tokens_dict_add.items()), columns=['word', 'count'])
+
+# Rank thw word & create a percentage column
+tokens_wc_add['rank'] = tokens_wc_add['count'].rank(method='first', ascending=False)
+total = tokens_wc_add['count'].sum()
+tokens_wc_add['pct_total'] = tokens_wc_add['count'].apply(lambda x: (x / total)*100)
+
+# Create a new DataFrame of NEW top 25 rankded words
+tokens_wc_add_top25 = tokens_wc_add[tokens_wc_add['rank'] <= 25]
+
+squarify.plot(sizes=tokens_wc_add_top25['pct_total'], labels=tokens_wc_add_top25['word'], alpha=.8)
+plt.axis('off')
+
+plt.show()
+
+plt.clf()
+
+# outcome:
+# heatmap shows common words Alice and rabbit are no longer tokens
+
+## Statistical trimming ##
+# Removing or trimming the most common words
+
+# Create a new DataFrame of the bottom 25 words
+tokens_wc_end25 = tokens_wc.tail(25)
+
+squarify.plot(sizes=tokens_wc_end25['pct_total'], labels=tokens_wc_end25['word'], alpha=.8)
+plt.axis('off')
+
+plt.show()
+
+plt.clf()

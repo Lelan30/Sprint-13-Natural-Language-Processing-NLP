@@ -1,0 +1,61 @@
+### Query Documents by Similarity ###
+
+## Vector Spaces ##
+# The number of dimensions in the space
+
+## Cosine Similarity ##
+# Calculating the similarity between two vectors
+
+# cos \Theta = \frac{A \cdot B}{\lvert A \rvert \lvert B \rvert} 
+'''
+(normalized dot product: where the dot product of vector
+A and B are divided by thier lengths)
+'''
+## Follow-Along ##
+# Create a corpus, then calculate the tf-idf vectors
+# Calculate the Cosine similarity with scikit-learn
+
+# Create corpus -- text available in github repo
+
+# Import module, open and read file
+from urllib.request import urlopen
+
+# Text contains 3 documents on 3 different subjects
+link = 'https://raw.githubusercontent.com/nwhoffman/NLP_example_text/master/u4s1m2_similarity.txt'
+f = urlopen(link)
+myfile = f.read()
+
+mystring = str(myfile, 'utf-8')
+corpus = mystring.split(';')
+
+# Print out first 300 chars for each doc
+for i in [0, 1, 2]:
+    print('Document:', i)
+    print(corpus[i][0:300])
+
+# Create vectors for each doc
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# Instantiate
+tfidf = TfidfVectorizer(stop_words='english', max_features=5000)
+
+# Create a vocabulary and get tfidf values per doc
+dtm = tfidf.fit_transform(corpus)
+
+# Imports
+import pandas as pd
+
+# Get feature names to use as DF headers
+dtm = pd.DataFrame(dtm.todense(), columns=tfidf.get_feature_names())
+
+# View the feature matrix as a DF
+dtm.head()
+
+# Find cosine similarity of tf-idf vectors
+from sklearn.metrics.pairwise import cosine_similarity
+
+cosine_sim = cosine_similarity()
+
+# Turn into DF
+cosine_sim = pd.DataFrame(cosine_sim)
+display(cosine_sim)
